@@ -1,8 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace DynamicDB2.DefStructs;
+using DefHelpers;
 
 internal struct LayoutDefinition
 {
