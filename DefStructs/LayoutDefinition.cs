@@ -89,7 +89,8 @@ internal struct LayoutDefinition
         if (!IsValid) return false;
         return Fields.All(field => field.Validate(columns));
     }
-
+    internal bool ContainsBuild(WowBuild build)
+        => Builds.Contains(build) || Ranges.Any(x => x.Contains(build));
     public override string ToString()
     {
         if (!IsValid) return string.Empty;
