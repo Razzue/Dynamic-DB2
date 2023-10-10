@@ -136,10 +136,6 @@ using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
 
-using wShadow.Casc.Useful;
-using wShadow.Casc.Storage;
-using wShadow.Casc.Bindings;
-
 public class C_{Name}
 {{
 {layout}
