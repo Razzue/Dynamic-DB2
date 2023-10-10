@@ -51,4 +51,17 @@ internal class Storages
             return path;
         }
     }
+
+    /// <summary>
+    /// Get the folder path where roslyn's csc.exe is stored.
+    /// </summary>
+    internal static string Roslyn
+    {
+        get
+        {
+            var path = Path.Combine(BaseDirectory, "Roslyn");
+            path = Path.Combine(path, "csc.exe");
+            return path;
+        }
+    }
 }

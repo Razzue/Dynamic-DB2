@@ -7,33 +7,29 @@ using DefHelpers;
 
 internal struct LayoutDefinition
 {
-    internal int End { get; private set; }
-    internal string Comment { get; private set; }
-    internal string[] Hashes { get; private set; }
-    internal WowBuild[] Builds { get; private set; }
-    internal WowBuildRange[] Ranges { get; private set; }
-    internal LineDefinition[] Fields { get; private set; }
+    internal int End;
+    internal string Comment;
+    internal string[] Hashes;
+    internal LineDefinition[] Fields;
+    internal WowBuild[] Builds;
+    internal WowBuildRange[] Ranges;
 
-    public LayoutDefinition(int index, string[] lines)
+    internal LayoutDefinition(int index, string[] lines)
     {
         End = 0;
         Comment = string.Empty;
         Hashes = Array.Empty<string>();
+        Fields = Array.Empty<LineDefinition>();
         Builds = Array.Empty<WowBuild>();
         Ranges = Array.Empty<WowBuildRange>();
-        Fields = Array.Empty<LineDefinition>();
 
-        ParseLines(index, lines);
-    }
-
-    private void ParseLines(int index, string[] lines)
-    {
-        var builds = new List<WowBuild>();
-        var ranges = new List<WowBuildRange>();
-        var fields = new List<LineDefinition>();
 
         try
         {
+            var fields = new List<LineDefinition>();
+            var builds = new List<WowBuild>();
+            var ranges = new List<WowBuildRange>();
+
             var lineNumber = index;
             while (lineNumber < lines.Length)
             {
@@ -43,12 +39,21 @@ internal struct LayoutDefinition
                 if (line.StartsWith("COMMENT"))
                 {
                     Comment = line.Substring(7).Trim();
+                    lineNumber++;
+                    continue;
                 }
-                else if (line.StartsWith("LAYOUT"))
+
+                if (line.StartsWith("LAYOUT"))
                 {
-                    Hashes = line.Remove(0, 7).Split(new[] { ", " }, StringSplitOptions.None);
+                    var hashes = line.Remove(0, 7).Split(new[] { ", " }, StringSplitOptions.None);
+                    if (hashes is { Length: > 0 }) Hashes = hashes;
+                    else throw new Exception("Could not parse layout hash set.");
+
+                    lineNumber++;
+                    continue;
                 }
-                else if (line.StartsWith("BUILD"))
+
+                if (line.StartsWith("BUILD"))
                 {
                     var splitBuilds = line.Remove(0, 6).Split(new string[] { ", " }, StringSplitOptions.None);
                     foreach (var splitBuild in splitBuilds)
@@ -63,12 +68,12 @@ internal struct LayoutDefinition
                                 new WowBuild(splitRange[1])));  // Maximum
                         }
                     }
-                }
-                else
-                {
-                    fields.Add(new LineDefinition(line));
+
+                    lineNumber++;
+                    continue;
                 }
 
+                fields.Add(new LineDefinition(line));
                 lineNumber++;
             }
 
@@ -77,28 +82,46 @@ internal struct LayoutDefinition
             Ranges = ranges.ToArray();
             End = lineNumber;
         }
-        catch (Exception e)
-        {
-            // Handle the exception appropriately, e.g., log or rethrow
-            Console.WriteLine(e);
-        }
+        catch (Exception e) { Console.WriteLine(e); }
+
     }
 
-    public bool Validate(Dictionary<string, ColumnDefinition> columns)
+    internal bool Validate(Dictionary<string, ColumnDefinition> columns)
     {
-        if (!IsValid) return false;
-        return Fields.All(field => field.Validate(columns));
+        try
+        {
+            if (!IsValid) return false;
+            for (var i = 0; i < Fields.Length; i++)
+                if (!Fields[i].Validate(columns))
+                {
+                    Console.WriteLine($"Could not validate field {Fields[i].Name}.");
+                    return false;
+                }
+        }
+        catch (Exception e) { Console.WriteLine(e); }
+        return true;
     }
     internal bool ContainsBuild(WowBuild build)
         => Builds.Contains(build) || Ranges.Any(x => x.Contains(build));
     public override string ToString()
     {
-        if (!IsValid) return string.Empty;
-        return string.Join("\n", Fields.Select(field => $"   {field}"));
+        var message = string.Empty;
+        try
+        {
+            if (!IsValid) return message;
+            for (int i = 0; i < Fields.Length; i++)
+                message += $"   {Fields[i]}\n";
+        }
+        catch (Exception e) { Console.WriteLine(e); }
+        return message;
     }
 
-    public bool HasLayouts => Hashes.Length > 0;
-    public bool HasBuilds => Builds.Length > 0 || Ranges.Length > 0;
-    public bool HasFields => Fields.Length > 0;
-    public bool IsValid => HasLayouts && HasBuilds && HasFields;
+    internal bool HasLayouts
+        => Hashes is { Length: > 0 };
+    internal bool HasBuilds
+        => Builds is { Length: > 0 } || Ranges is { Length: > 0 };
+    internal bool HasFields
+        => Fields is { Length: > 0 };
+    internal bool IsValid
+        => HasLayouts && HasBuilds && HasFields;
 }

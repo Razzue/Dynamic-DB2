@@ -26,14 +26,12 @@ internal struct DBConverter
         {
             Name = $"{def}";
             if (def is WowDatabase.Unknown)
-            {
                 throw new ArgumentException("Could not determine def type or stream.");
-            }
 
-            var lines = File.ReadAllLines($"{Storages.Definitions}\\{Name}.dbd");
+            var lines = File.ReadAllLines($"{Storages.Definitions}\\{def.DbdString()}");
             if (string.IsNullOrEmpty(Name) || lines.Length <= 0)
             {
-                throw new ArgumentException($"Could not load lines from {Name}.dbd.");
+                throw new ArgumentException($"Could not load lines from {def.DbdString()}.");
             }
 
             var lineNumber = 1;
