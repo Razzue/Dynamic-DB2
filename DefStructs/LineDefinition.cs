@@ -1,6 +1,7 @@
 ﻿using DynamicDB2.Useful;
 using System;
 using System.Collections.Generic;
+using DynamicDB2.DefHelpers;
 
 namespace DynamicDB2.DefStructs;
 

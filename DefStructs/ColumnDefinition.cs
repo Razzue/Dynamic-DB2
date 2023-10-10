@@ -1,4 +1,5 @@
 ﻿using System;
+using DynamicDB2.DefHelpers;
 using DynamicDB2.Useful;
 
 namespace DynamicDB2.DefStructs;
