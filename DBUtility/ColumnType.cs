@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace DynamicDB2.DefHelpers;
+﻿namespace DynamicDB2.DBUtility;
 
 public enum ColumnType
 {
@@ -13,7 +11,7 @@ public enum ColumnType
 internal static class ColumnTypeExtension
 {
     internal static ColumnType GetColumnType(this string source)
-        => source switch
+        => source.ToLower() switch
         {
             "locstring" => ColumnType.String,
             "string" => ColumnType.String,

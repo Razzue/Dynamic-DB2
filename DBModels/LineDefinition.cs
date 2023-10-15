@@ -1,30 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace DynamicDB2.DefStructs;
-using DefHelpers;
+namespace DynamicDB2.DBModels;
+
+using DBUtility;
 
 internal struct LineDefinition
 {
-    internal int Size;
-    internal int Length;
-    internal bool Signed;
-    internal string Name;
-    internal ColumnType Type;
+    private readonly int _size;
+    private readonly int _length;
+    private readonly bool _signed;
+    private ColumnType _type;
+
+
+    internal string Name { get; }
+
     internal bool IsArray
-        => Length > 0;
+        => _length > 0;
     internal string TypeString
         => $"{GetTypeFromSize()}";
     internal bool HasValidSize
-        => Size is > 0 and <= 64;
-
+        => _size is > 0 and <= 64;
+    
     internal LineDefinition(string line)
     {
-        Size = 0;
-        Length = 0;
-        Signed = true;
+        _size = 0;
+        _length = 0;
+        _signed = true;
         Name = string.Empty;
-        Type = ColumnType.Unknown;
+        _type = ColumnType.Unknown;
 
         try
         {
@@ -47,10 +51,10 @@ internal struct LineDefinition
             if (line.Contains("<"))
             {
                 var size = line.Substring(line.IndexOf('<') + 1, line.IndexOf('>') - line.IndexOf('<') - 1);
-                int.TryParse(size[0] == 'u' ? size.Replace("u", "") : size, out Size);
+                int.TryParse(size[0] == 'u' ? size.Replace("u", "") : size, out _size);
 
                 // u = Unsigned, lack of = Signed
-                Signed = size[0] != 'u';
+                _signed = size[0] != 'u';
 
                 // Remove size field from line
                 line = line.Remove(line.IndexOf('<'), line.IndexOf('>') - line.IndexOf('<') + 1);
@@ -59,7 +63,7 @@ internal struct LineDefinition
             // Handle field arrays
             if (line.Contains("["))
             {
-                int.TryParse(line.Substring(line.IndexOf('[') + 1, line.IndexOf(']') - line.IndexOf('[') - 1), out Length);
+                int.TryParse(line.Substring(line.IndexOf('[') + 1, line.IndexOf(']') - line.IndexOf('[') - 1), out _length);
 
                 // Remove array value
                 line = line.Remove(line.IndexOf('['), line.IndexOf(']') - line.IndexOf('[') + 1);
@@ -78,20 +82,20 @@ internal struct LineDefinition
         try
         {
             if (columns is { Count: > 0 } && columns.ContainsKey(Name))
-                Type = columns[Name].Type;
+                _type = columns[Name].Type;
         }
         catch (Exception e) { Console.WriteLine(e); }
-        return Type != ColumnType.Unknown;
+        return _type != ColumnType.Unknown;
     }
 
     internal string GetTypeFromSize()
-        => Size switch
+        => _size switch
         {
-            64 => Signed ? "long" : "ulong",
-            32 => Signed ? "int" : "uint",
-            16 => Signed ? "short" : "ushort",
-            08 => Signed ? "sbyte" : "byte",
-            _ => Type switch
+            64 => _signed ? "long" : "ulong",
+            32 => _signed ? "int" : "uint",
+            16 => _signed ? "short" : "ushort",
+            08 => _signed ? "sbyte" : "byte",
+            _ => _type switch
             {
                 ColumnType.String => "string",
                 ColumnType.Single => "float",

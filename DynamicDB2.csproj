@@ -4,8 +4,8 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{FC513B1E-B17D-4C23-9C3D-B9F0337B6EE7}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <ProjectGuid>{C2487AF0-7B6A-43FB-9765-356A136DC2AB}</ProjectGuid>
+    <OutputType>Library</OutputType>
     <RootNamespace>DynamicDB2</RootNamespace>
     <AssemblyName>DynamicDB2</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
@@ -56,6 +56,9 @@
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=7.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>packages\Microsoft.Bcl.AsyncInterfaces.7.0.0\lib\net462\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
@@ -102,16 +105,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DefHelpers\Converters.cs" />
-    <Compile Include="DefHelpers\WowBuild.cs" />
-    <Compile Include="DefStructs\ColumnDefinition.cs" />
-    <Compile Include="DefStructs\LayoutDefinition.cs" />
-    <Compile Include="DefStructs\LineDefinition.cs" />
-    <Compile Include="DefHelpers\ColumnType.cs" />
-    <Compile Include="Useful\WowDatabase.cs" />
-    <Compile Include="Main.cs" />
+    <Compile Include="DBModels\ColumnDefinition.cs" />
+    <Compile Include="DBModels\LayoutDefinition.cs" />
+    <Compile Include="DBModels\LineDefinition.cs" />
+    <Compile Include="DBUtility\ColumnType.cs" />
+    <Compile Include="DBUtility\WowDbd.cs" />
+    <Compile Include="DBUtility\WowBuild.cs" />
+    <Compile Include="Helpers\DBDefinition.cs" />
+    <Compile Include="Helpers\DBTemplate.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Useful\Storages.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

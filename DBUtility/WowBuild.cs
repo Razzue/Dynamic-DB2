@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DynamicDB2.DefHelpers;
+namespace DynamicDB2.DBUtility;
 
 public class WowBuild : IComparable
 {

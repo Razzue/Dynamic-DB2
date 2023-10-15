@@ -1,27 +1,29 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 
-namespace DynamicDB2.DefStructs;
-using DefHelpers;
+namespace DynamicDB2.DBModels;
+
+using DBUtility;
 
 internal struct LayoutDefinition
 {
-    internal int End;
-    internal string Comment;
-    internal string[] Hashes;
-    internal LineDefinition[] Fields;
-    internal WowBuild[] Builds;
-    internal WowBuildRange[] Ranges;
+    private readonly int _end;
+    private readonly string _comment;
+    private readonly string[] _hashes;
+    private readonly WowBuild[] _builds;
+    private readonly WowBuildRange[] _ranges;
+    private readonly LineDefinition[] _fields;
 
+    internal string[] Hashes => _hashes;
     internal LayoutDefinition(int index, string[] lines)
     {
-        End = 0;
-        Comment = string.Empty;
-        Hashes = Array.Empty<string>();
-        Fields = Array.Empty<LineDefinition>();
-        Builds = Array.Empty<WowBuild>();
-        Ranges = Array.Empty<WowBuildRange>();
+        _end = 0;
+        _comment = string.Empty;
+        _hashes = Array.Empty<string>();
+        _builds = Array.Empty<WowBuild>();
+        _ranges = Array.Empty<WowBuildRange>();
+        _fields = Array.Empty<LineDefinition>();
 
 
         try
@@ -38,7 +40,7 @@ internal struct LayoutDefinition
 
                 if (line.StartsWith("COMMENT"))
                 {
-                    Comment = line.Substring(7).Trim();
+                    _comment = line.Substring(7).Trim();
                     lineNumber++;
                     continue;
                 }
@@ -46,7 +48,7 @@ internal struct LayoutDefinition
                 if (line.StartsWith("LAYOUT"))
                 {
                     var hashes = line.Remove(0, 7).Split(new[] { ", " }, StringSplitOptions.None);
-                    if (hashes is { Length: > 0 }) Hashes = hashes;
+                    if (hashes is { Length: > 0 }) _hashes = hashes;
                     else throw new Exception("Could not parse layout hash set.");
 
                     lineNumber++;
@@ -77,24 +79,24 @@ internal struct LayoutDefinition
                 lineNumber++;
             }
 
-            Fields = fields.ToArray();
-            Builds = builds.ToArray();
-            Ranges = ranges.ToArray();
-            End = lineNumber;
+            _fields = fields.ToArray();
+            _builds = builds.ToArray();
+            _ranges = ranges.ToArray();
+            _end = lineNumber;
         }
         catch (Exception e) { Console.WriteLine(e); }
 
     }
 
-    internal bool Validate(Dictionary<string, ColumnDefinition> columns)
+     internal bool Validate(Dictionary<string, ColumnDefinition> columns)
     {
         try
         {
             if (!IsValid) return false;
-            for (var i = 0; i < Fields.Length; i++)
-                if (!Fields[i].Validate(columns))
+            for (var i = 0; i < _fields.Length; i++)
+                if (!_fields[i].Validate(columns))
                 {
-                    Console.WriteLine($"Could not validate field {Fields[i].Name}.");
+                    Console.WriteLine($"Could not validate field {_fields[i].Name}.");
                     return false;
                 }
         }
@@ -102,26 +104,28 @@ internal struct LayoutDefinition
         return true;
     }
     internal bool ContainsBuild(WowBuild build)
-        => Builds.Contains(build) || Ranges.Any(x => x.Contains(build));
+        => _builds.Contains(build) || _ranges.Any(x => x.Contains(build));
     public override string ToString()
     {
         var message = string.Empty;
         try
         {
             if (!IsValid) return message;
-            for (int i = 0; i < Fields.Length; i++)
-                message += $"   {Fields[i]}\n";
+            for (int i = 0; i < _fields.Length; i++)
+                message += $"   {_fields[i]}\n";
         }
         catch (Exception e) { Console.WriteLine(e); }
         return message;
     }
 
+    internal int End => _end;
+
     internal bool HasLayouts
-        => Hashes is { Length: > 0 };
+        => _hashes is { Length: > 0 };
     internal bool HasBuilds
-        => Builds is { Length: > 0 } || Ranges is { Length: > 0 };
+        => _builds is { Length: > 0 } || _ranges is { Length: > 0 };
     internal bool HasFields
-        => Fields is { Length: > 0 };
+        => _fields is { Length: > 0 };
     internal bool IsValid
         => HasLayouts && HasBuilds && HasFields;
 }
